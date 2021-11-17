@@ -1,9 +1,20 @@
+use std::io;
+
 use tokeniser::Tokeniser;
 
 fn main() {
-    let tokeniser = Tokeniser::new(String::from("1 + 1 / 607-12"));
+    loop {
+        let mut s = String::new();
+        let result = io::stdin().read_line(&mut s).unwrap();
 
-    for token in tokeniser {
-        print!("{} ", token.get_value());
+        if result == 0 {
+            break;
+        }
+
+        let tokeniser = Tokeniser::new(s);
+        for token in tokeniser {
+            print!("{} ", token.get_value());
+        }
+        println!();
     }
 }
