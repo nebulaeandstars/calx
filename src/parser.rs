@@ -137,6 +137,20 @@ fn parse_atom<'a>(stream: &mut VecDeque<Token>) -> Option<Atom> {
         Some(Token::Integer(num)) => Some(Atom::Integer(num)),
         Some(Token::Variable(var)) => Some(Atom::Variable(var.clone())),
 
+        Some(Token::LeftParenthesis) => {
+            if let Some(exp) = parse_expression(stream) {
+                if let Some(Token::RightParenthesis) = stream.pop_front() {
+                    Some(Atom::Expression(Box::new(exp)))
+                }
+                else {
+                    panic!("Unmatched brackets!")
+                }
+            }
+            else {
+                None
+            }
+        },
+
         Some(_) => {
             stream.push_front(token.unwrap());
             None
