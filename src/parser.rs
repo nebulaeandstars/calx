@@ -3,27 +3,15 @@ use std::collections::VecDeque;
 use super::expression::{Atom, Expression, MExpression};
 use super::token::Token;
 
-pub fn parse_expression<'a>(
-    stream: &mut VecDeque<Token>,
-) -> Option<Expression> {
+pub fn parse_expression(stream: &mut VecDeque<Token>) -> Option<Expression> {
     if let Some(exp1) = parse_m_expression(stream) {
         let token = stream.pop_front();
 
         match token {
-            Some(Token::Add) =>
-                if let Some(exp2) = parse_expression(stream) {
-                    Some(Expression::Add(exp1, Box::new(exp2)))
-                }
-                else {
-                    None
-                },
-            Some(Token::Subtract) =>
-                if let Some(exp2) = parse_expression(stream) {
-                    Some(Expression::Subtract(exp1, Box::new(exp2)))
-                }
-                else {
-                    None
-                },
+            Some(Token::Add) => parse_expression(stream)
+                .map(|exp2| Expression::Add(exp1, Box::new(exp2))),
+            Some(Token::Subtract) => parse_expression(stream)
+                .map(|exp2| Expression::Subtract(exp1, Box::new(exp2))),
 
             Some(_) => {
                 stream.push_front(token.unwrap());
@@ -37,25 +25,15 @@ pub fn parse_expression<'a>(
     }
 }
 
-fn parse_m_expression<'a>(stream: &mut VecDeque<Token>) -> Option<MExpression> {
+fn parse_m_expression(stream: &mut VecDeque<Token>) -> Option<MExpression> {
     if let Some(atom) = parse_atom(stream) {
         let token = stream.pop_front();
 
         match token {
-            Some(Token::Multiply) =>
-                if let Some(exp) = parse_m_expression(stream) {
-                    Some(MExpression::Multiply(atom, Box::new(exp)))
-                }
-                else {
-                    None
-                },
-            Some(Token::Divide) =>
-                if let Some(exp) = parse_m_expression(stream) {
-                    Some(MExpression::Divide(atom, Box::new(exp)))
-                }
-                else {
-                    None
-                },
+            Some(Token::Multiply) => parse_m_expression(stream)
+                .map(|exp| MExpression::Multiply(atom, Box::new(exp))),
+            Some(Token::Divide) => parse_m_expression(stream)
+                .map(|exp| MExpression::Divide(atom, Box::new(exp))),
 
             Some(_) => {
                 stream.push_front(token.unwrap());
@@ -74,12 +52,12 @@ fn parse_m_expression<'a>(stream: &mut VecDeque<Token>) -> Option<MExpression> {
     }
 }
 
-fn parse_atom<'a>(stream: &mut VecDeque<Token>) -> Option<Atom> {
+fn parse_atom(stream: &mut VecDeque<Token>) -> Option<Atom> {
     let token = stream.pop_front();
 
     match token {
         Some(Token::Integer(num)) => Some(Atom::Integer(num)),
-        Some(Token::Variable(var)) => Some(Atom::Variable(var.clone())),
+        Some(Token::Variable(var)) => Some(Atom::Variable(var)),
 
         Some(Token::LeftParenthesis) => {
             if let Some(exp) = parse_expression(stream) {

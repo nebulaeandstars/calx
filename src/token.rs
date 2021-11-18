@@ -26,7 +26,7 @@ impl Token {
             RightParenthesis => Some(")"),
             _ => None,
         }
-        .map(|s| String::from(s))
+        .map(String::from)
     }
 }
 
@@ -35,7 +35,7 @@ impl fmt::Display for Token {
         let s = match self {
             Integer(num) => format!("{}", num),
             Variable(var) => var.clone(),
-            _ => String::from(self.try_fmt().unwrap()),
+            _ => self.try_fmt().unwrap(),
         };
 
         write!(f, "{}", s)
