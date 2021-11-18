@@ -13,7 +13,7 @@ fn main() {
 
         let tokeniser = Tokeniser::new(s);
         for token in tokeniser {
-            print!("{} ", token.get_value());
+            print!("{:?} ", token);
         }
         println!();
     }

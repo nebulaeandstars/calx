@@ -1,51 +1,7 @@
-use std::fmt;
+mod token;
 
 use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
-
-#[derive(Clone, Copy, Debug, EnumIter)]
-pub enum StaticTokenType {
-    AdditionSymbol,
-    SubtractionSymbol,
-    MultiplicationSymbol,
-    DivisionSymbol,
-}
-
-#[derive(Clone, Copy, Debug)]
-pub enum TokenType {
-    Static(StaticTokenType),
-    Integer,
-}
-
-impl fmt::Display for StaticTokenType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use StaticTokenType::*;
-
-        let s = match self {
-            AdditionSymbol => "+",
-            SubtractionSymbol => "-",
-            MultiplicationSymbol => "*",
-            DivisionSymbol => "/",
-        };
-
-        write!(f, "{}", s)
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct Token {
-    token_type: TokenType,
-    value:      String,
-}
-
-impl Token {
-    pub fn new(token_type: TokenType, value: String) -> Self {
-        Token { token_type, value }
-    }
-
-    pub fn get_type(&self) -> TokenType { self.token_type }
-    pub fn get_value(&self) -> &String { &self.value }
-}
+use token::Token;
 
 pub struct Tokeniser {
     current: Option<Token>,
@@ -67,21 +23,19 @@ impl Iterator for Tokeniser {
             return None;
         }
 
-        // Match any static tokens.
-        for token_type in StaticTokenType::iter() {
-            let s = token_type.to_string();
-            if self.buffer.len() >= s.len() {
-                let substring: String =
-                    self.buffer.chars().take(s.len()).collect();
-                if substring == s {
-                    let token_type = TokenType::Static(token_type);
-                    self.current = Some(Token::new(token_type, s));
-                    break;
+        // For any token with a known format, check whether the start of the
+        // buffer matches its String representation. This will match any
+        // "static" tokens that have been defined.
+        for token in Token::iter() {
+            if let Some(display) = token.try_fmt() {
+                let chars = self.buffer.chars();
+                if !display.chars().zip(chars).any(|(a, b)| a != b) {
+                    self.current = Some(token);
                 }
             }
         }
 
-        // If a static token wasn't found, match the next Integer.
+        // If a static token wasn't found, try to match an Integer.
         if self.current.is_none() {
             let s: String = self
                 .buffer
@@ -90,7 +44,21 @@ impl Iterator for Tokeniser {
                 .collect();
 
             if !s.is_empty() {
-                self.current = Some(Token::new(TokenType::Integer, s));
+                let num = s.parse::<i64>().unwrap();
+                self.current = Some(Token::Integer(num));
+            }
+        }
+
+        // If an Integer wasn't found, try to match a Variable.
+        if self.current.is_none() {
+            let s: String = self
+                .buffer
+                .chars()
+                .take_while(|&c| c as u8 >= b'A' && c as u8 <= b'z')
+                .collect();
+
+            if !s.is_empty() {
+                self.current = Some(Token::Variable(s));
             }
         }
 
@@ -101,7 +69,7 @@ impl Iterator for Tokeniser {
         }
 
         let token_size = match &self.current {
-            Some(token) => token.get_value().len(),
+            Some(token) => format!("{}", token).len(),
             None => 0,
         };
         self.buffer = self.buffer.chars().skip(token_size).collect();
