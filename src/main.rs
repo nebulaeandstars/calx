@@ -1,8 +1,6 @@
 use std::io;
 
-use tokeniser::parser::Expression;
-use tokeniser::token::Token;
-use tokeniser::Tokeniser;
+use tokeniser::{Evaluate, Expression, Token, Tokeniser};
 
 fn main() {
     loop {
@@ -16,6 +14,6 @@ fn main() {
         let tokens: Vec<Token> = Tokeniser::new(s).collect();
         let expression: Expression = tokens.into();
 
-        println!("{}", expression);
+        println!("{}\n{}", expression, expression.eval());
     }
 }
