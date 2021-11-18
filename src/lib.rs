@@ -1,4 +1,5 @@
-mod token;
+pub mod parser;
+pub mod token;
 
 use std::ops::RangeInclusive;
 
@@ -81,7 +82,7 @@ impl Iterator for Tokeniser {
             Some(token) => format!("{}", token).len(),
             None => 0,
         };
-        self.buffer = self.buffer.chars().skip(token_size).collect();
+        self.buffer.drain(0..token_size);
 
         self.current.clone()
     }

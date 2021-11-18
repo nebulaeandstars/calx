@@ -1,5 +1,7 @@
 use std::io;
 
+use tokeniser::parser::Expression;
+use tokeniser::token::Token;
 use tokeniser::Tokeniser;
 
 fn main() {
@@ -11,10 +13,9 @@ fn main() {
             break;
         }
 
-        let tokeniser = Tokeniser::new(s);
-        for token in tokeniser {
-            print!("{:?} ", token);
-        }
-        println!();
+        let tokens: Vec<Token> = Tokeniser::new(s).collect();
+        let expression: Expression = tokens.into();
+
+        println!("{}", expression);
     }
 }

@@ -9,6 +9,8 @@ pub enum Token {
     Subtract,
     Multiply,
     Divide,
+    LeftParenthesis,
+    RightParenthesis,
     Integer(i64),
     Variable(String),
 }
@@ -20,6 +22,8 @@ impl Token {
             Subtract => Some("-"),
             Multiply => Some("*"),
             Divide => Some("/"),
+            LeftParenthesis => Some("("),
+            RightParenthesis => Some(")"),
             _ => None,
         }
         .map(|s| String::from(s))
