@@ -3,6 +3,14 @@
 version = 3
 
 [[package]]
+name = "calx"
+version = "0.1.0"
+dependencies = [
+ "strum",
+ "strum_macros",
+]
+
+[[package]]
 name = "heck"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -63,14 +71,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-xid",
-]
-
-[[package]]
-name = "tokeniser"
-version = "0.1.0"
-dependencies = [
- "strum",
- "strum_macros",
 ]
 
 [[package]]

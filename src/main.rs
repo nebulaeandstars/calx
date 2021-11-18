@@ -1,6 +1,6 @@
 use std::io;
 
-use tokeniser::{Evaluate, Expression, Token, Tokeniser};
+use calx::{Evaluate, Expression, Token, Tokeniser};
 
 fn main() {
     loop {
